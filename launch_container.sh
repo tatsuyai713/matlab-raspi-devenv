@@ -9,9 +9,6 @@ if [ ! $# -ne 1 ]; then
 		echo "Image ${NAME_IMAGE} does not exist."
 		echo 'Now building image without proxy...'
 		docker build --file=./noproxy.dockerfile -t $NAME_IMAGE .
-	else
-		echo "Docker image is not found. Please setup first!"
-		exit 0
 	fi
 fi
 if [ ! $# -ne 1 ]; then
