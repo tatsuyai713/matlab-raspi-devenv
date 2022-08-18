@@ -23,4 +23,4 @@ RUN sed -i 's/#Port 22/Port 20022/' /etc/ssh/sshd_config
 
 EXPOSE 20022
 USER pi
-CMD sudo bash -c '/usr/sbin/sshd -D &' && /bin/bash
+CMD sudo bash -c 'ssh-keygen -A' && sudo bash -c '/usr/sbin/sshd -D &' && /bin/bash
