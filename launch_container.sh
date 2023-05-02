@@ -2,10 +2,10 @@
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
 
 
-NAME_IMAGE='raspi_docker_ws'
+NAME_IMAGE='raspi_docker_image'
 
 if [ ! $# -ne 1 ]; then
-	if [ "setup" = $1 ]; then
+	if [ "build" = $1 ]; then
 		echo "Image ${NAME_IMAGE} does not exist."
 		echo 'Now building image without proxy...'
 		docker build --file=./noproxy.dockerfile -t $NAME_IMAGE .
@@ -13,8 +13,18 @@ if [ ! $# -ne 1 ]; then
 fi
 if [ ! $# -ne 1 ]; then
 	if [ "commit" = $1 ]; then
-		docker commit raspi_docker raspi_docker_ws:latest
+		docker commit raspi_docker raspi_docker_image:latest
 		CONTAINER_ID=$(docker ps -a -f name=raspi_docker --format "{{.ID}}")
+		docker rm $CONTAINER_ID
+		exit 0
+	else
+		echo "Docker image is found. Setup is already finished!"
+	fi
+fi
+if [ ! $# -ne 1 ]; then
+	if [ "stop" = $1 ]; then
+		CONTAINER_ID=$(docker ps -a -f name=raspi_docker --format "{{.ID}}")
+		docker stop $CONTAINER_ID
 		docker rm $CONTAINER_ID
 		exit 0
 	else
@@ -42,6 +52,9 @@ DOCKER_OPT="${DOCKER_OPT} \
         --env=XAUTHORITY=${XAUTH} \
         --volume=${XAUTH}:${XAUTH} \
         --env=DISPLAY=${DISPLAY} \
+		--shm-size=1gb \
+		--env=TERM=xterm-256color \
+		-p 22:22 \
         -w ${DOCKER_WORK_DIR} \
         -u pi \
         --hostname Raspi-`hostname`"
@@ -53,21 +66,16 @@ CONTAINER_ID=$(docker ps -a -f name=raspi_docker --format "{{.ID}}")
 if [ ! "$CONTAINER_ID" ]; then
 	docker run ${DOCKER_OPT} \
 		-itd \
-		--shm-size=1gb \
-		--env=TERM=xterm-256color \
-		-p 22:20022 \
 		--name=${DOCKER_NAME} \
-		raspi_docker_ws:latest
+		raspi_docker_image:latest
 fi
 
 CONTAINER_ID=$(docker ps -a -f name=raspi_docker --format "{{.ID}}")
 if [ ! "$CONTAINER_ID" ]; then
 	docker run ${DOCKER_OPT} \
 		-it \
-		--shm-size=1gb \
-		--env=TERM=xterm-256color \
 		--name=${DOCKER_NAME} \
-		raspi_docker_ws:latest \
+		raspi_docker_image:latest \
 		bash
 else
 	docker start $CONTAINER_ID
