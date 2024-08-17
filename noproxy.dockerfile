@@ -1,4 +1,4 @@
-FROM raspi_docker_image:latest
+FROM ghcr.io/tatsuyai713/matlab-raspi-devenv:r2021a
 
 USER root
 

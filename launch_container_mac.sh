@@ -36,7 +36,7 @@ chmod a+r $XAUTH
 DOCKER_OPT=""
 DOCKER_NAME="raspi_docker"
 DOCKER_WORK_DIR="/home/pi"
-DISPLAY=$(hostname):0
+DISPLAY=host.docker.internal:0
 
 ## For XWindow
 DOCKER_OPT="${DOCKER_OPT} \
@@ -50,11 +50,10 @@ DOCKER_OPT="${DOCKER_OPT} \
         -w ${DOCKER_WORK_DIR} \
 		-p 22:20022 \
         -u pi \
-        --hostname Raspi-`hostname`"
-		
-		
+        --hostname Raspi-$(hostname)"
+
 ## Allow X11 Connection
-xhost +local:Raspi-`hostname`
+xhost + 192.168.65.0/24
 
 CONTAINER_ID=$(docker ps -a -f name=raspi_docker --format "{{.ID}}")
 if [ ! "$CONTAINER_ID" ]; then
@@ -76,5 +75,5 @@ else
 	docker attach $CONTAINER_ID
 fi
 
-xhost -local:Raspi-`hostname`
+xhost - 192.168.65.0/24
 
